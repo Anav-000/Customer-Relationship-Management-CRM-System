@@ -1,0 +1,247 @@
+import React, { useState, useEffect } from "react";
+import { FiDownload, FiFilter, FiCalendar } from "react-icons/fi";
+import { format } from "date-fns";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  PieChart,
+  Pie,
+  LineChart,
+  Line,
+  ResponsiveContainer
+} from "recharts";
+
+const   Dashboard = () => {
+  const [reportType, setReportType] = useState("sales");
+  const [dateRange, setDateRange] = useState("week");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showDownloadMenu, setShowDownloadMenu] = useState(false);
+
+  const mockSalesData = [
+    { name: "Mon", sales: 4000, revenue: 2400 },
+    { name: "Tue", sales: 3000, revenue: 1398 },
+    { name: "Wed", sales: 2000, revenue: 9800 },
+    { name: "Thu", sales: 2780, revenue: 3908 },
+    { name: "Fri", sales: 1890, revenue: 4800 },
+    { name: "Sat", sales: 2390, revenue: 3800 },
+    { name: "Sun", sales: 3490, revenue: 4300 }
+  ];
+
+  const mockPieData = [
+    { name: "Product A", value: 400 },
+    { name: "Product B", value: 300 },
+    { name: "Product C", value: 300 },
+    { name: "Product D", value: 200 }
+  ];
+
+  const mockEngagementData = [
+    { name: "Jan", users: 4000 },
+    { name: "Feb", users: 3000 },
+    { name: "Mar", users: 2000 },
+    { name: "Apr", users: 2780 },
+    { name: "May", users: 1890 },
+    { name: "Jun", users: 2390 }
+  ];
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to load report data");
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [reportType, dateRange]);
+
+  const handleExport = (format) => {
+    console.log(`Exporting report in ${format} format`);
+    setTimeout(() => {
+      alert(`Report downloaded in ${format} format`);
+      setShowDownloadMenu(false);
+    }, 1000);
+  };
+
+  const DownloadMenu = () => (
+    <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+      <div className="py-1" role="menu" aria-orientation="vertical">
+        <button
+          onClick={() => handleExport("pdf")}
+          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          role="menuitem"
+        >
+          Download as PDF
+        </button>
+        <button
+          onClick={() => handleExport("excel")}
+          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          role="menuitem"
+        >
+          Download as Excel
+        </button>
+        <button
+          onClick={() => handleExport("csv")}
+          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          role="menuitem"
+        >
+          Download as CSV
+        </button>
+      </div>
+    </div>
+  );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-background">
+        <div className="text-destructive text-lg">{error}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background p-6">
+      <div className="mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-heading font-heading text-foreground">Reports Dashboard</h1>
+          <p className="text-body text-accent">Analysis and Insights</p>
+        </div>
+        <div className="relative">
+          <button
+            onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+          >
+            <FiDownload />
+            Download Reports
+          </button>
+          {showDownloadMenu && <DownloadMenu />}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="bg-card p-6 rounded-lg shadow-sm">
+          <h3 className="font-heading mb-2">Total Sales</h3>
+          <p className="text-2xl font-bold text-primary">$124,500</p>
+        </div>
+        <div className="bg-card p-6 rounded-lg shadow-sm">
+          <h3 className="font-heading mb-2">Active Users</h3>
+          <p className="text-2xl font-bold text-chart-2">8,549</p>
+        </div>
+        <div className="bg-card p-6 rounded-lg shadow-sm">
+          <h3 className="font-heading mb-2">Conversion Rate</h3>
+          <p className="text-2xl font-bold text-chart-3">23.5%</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="bg-card p-6 rounded-lg shadow-sm">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="font-heading">Sales Performance</h2>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleExport("pdf")}
+                className="p-2 text-accent hover:text-primary transition-colors"
+                aria-label="Download PDF"
+              >
+                <FiDownload />
+              </button>
+              <button
+                className="p-2 text-accent hover:text-primary transition-colors"
+                aria-label="Filter"
+              >
+                <FiFilter />
+              </button>
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={mockSalesData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="sales" fill="#0D6EFD" />
+              <Bar dataKey="revenue" fill="#4CAF50" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="bg-card p-6 rounded-lg shadow-sm">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="font-heading">Revenue Distribution</h2>
+            <button
+              className="p-2 text-accent hover:text-primary transition-colors"
+              aria-label="Download CSV"
+              onClick={() => handleExport("csv")}
+            >
+              <FiDownload />
+            </button>
+          </div>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={mockPieData}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+                label
+              />
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="bg-card p-6 rounded-lg shadow-sm">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="font-heading">User Engagement Trends</h2>
+          <div className="flex items-center gap-4">
+            <button
+              className="flex items-center gap-2 text-accent hover:text-primary transition-colors"
+              aria-label="Select date range"
+            >
+              <FiCalendar />
+              <span>Last 6 months</span>
+            </button>
+          </div>
+        </div>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={mockEngagementData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Line
+              type="monotone"
+              dataKey="users"
+              stroke="#03A9F4"
+              activeDot={{ r: 8 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
